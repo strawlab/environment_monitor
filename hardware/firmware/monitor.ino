@@ -4,9 +4,13 @@
 #include "OneWire.h"
 #include "DHT22.h"
 
-#define PIN_ONEWIRE 10
+#define PIN_ONEWIRE 9
 #define PIN_DHT22   6
 #define PIN_LED     13
+
+#define DEBUG       1
+
+#define ERROR(...) if (DEBUG) {Serial.print(__VA_ARGS__);}
 
 DHT22   myDHT22(PIN_DHT22);
 bool    dht22_ok;
@@ -74,7 +78,7 @@ bool max31850_sample(float &celsius) {
 
     present = ds.reset();
     if (!present) {
-        Serial.println("max31850: not detected");
+        ERROR("max31850: not detected\n");
         return false;
     }
 
@@ -87,13 +91,13 @@ bool max31850_sample(float &celsius) {
         data[i] = ds.read();
 
     if (OneWire::crc8(data, 8) != data[8]) {
-        Serial.println("max31850: CRC error");
+        ERROR("max31850: CRC error\n");
         return false;
     }
 
     int16_t raw = (data[1] << 8) | data[0];
     if (raw & 0x01) {
-        Serial.println("max31850: fault");
+        ERROR("max31850: fault\n");
         return false;
     }
 
@@ -124,7 +128,9 @@ bool dht22_sample(float &celcius, float &relativehumidity) {
         case DHT_ERROR_SYNC_TIMEOUT:
         case DHT_ERROR_DATA_TIMEOUT:
         case DHT_ERROR_TOOQUICK:
-            Serial.print("dht22: error "); Serial.println(errorCode, HEX);
+            ERROR("dht22: error ");
+            ERROR(errorCode, HEX);
+            ERROR("\n");
             return false;
     }
 }
@@ -132,18 +138,26 @@ bool dht22_sample(float &celcius, float &relativehumidity) {
 
 void setup(void) {
     pinMode(PIN_LED, OUTPUT);
-    Serial.begin(9600);
+    Serial.begin(115200);
+
+    digitalWrite(PIN_LED, HIGH);
 
     tsl2561_ok = tsl2561_setup();
     max31850_ok = max31850_setup();
     dht22_ok = dht22_setup();
 
-    Serial.print("Found Light Sensor: "); Serial.println(tsl2561_ok);
-    Serial.print("Found Thermocouple Sensor: "); Serial.println(tsl2561_ok);
-    Serial.print("Found Humidity Sensor: "); Serial.println(dht22_ok);
-
-    if (! (tsl2561_ok && max31850_ok && dht22_ok))
-        while (1);
+    if (! (tsl2561_ok && max31850_ok && dht22_ok)) {
+        if (!tsl2561_ok)
+            Serial.println("ERROR: tsl2561");
+        if (!max31850_ok)
+            Serial.println("ERROR: max31850");
+        if (!dht22_ok)
+            Serial.println("ERROR: dht22");
+        while (1) {
+            digitalWrite(PIN_LED, 0x01 ^ digitalRead(PIN_LED));
+            delay(100);
+        }
+    }
 }
 
 void loop(void) {
@@ -156,17 +170,20 @@ void loop(void) {
     bool dht22_sample_ok = dht22_sample(celcius2, rh);
 
     if (tsl2561_sample_ok) {
-        Serial.print("IR: "); Serial.print(ir);   Serial.print("\t\t");
-        Serial.print("Full: "); Serial.print(full);   Serial.print("\t");
-        Serial.print("Visible: "); Serial.print(full - ir);   Serial.print("\t");
-        Serial.print("Lux: "); Serial.println(lux);
+        Serial.print("LIGHT: ");
+        Serial.print("ir="); Serial.print(ir);   Serial.print(" ");
+        Serial.print("full="); Serial.print(full);   Serial.print(" ");
+        Serial.print("visible="); Serial.print(full - ir);   Serial.print(" ");
+        Serial.print("lux="); Serial.println(lux);
     }
     if (max31850_sample_ok) {
-        Serial.print("Celsius: "); Serial.println(celcius);
+        Serial.print("TEMPERATURE: ");
+        Serial.print("tempc="); Serial.println(celcius);
     }
     if (dht22_sample_ok) {
-        Serial.print("Celsius: "); Serial.print(celcius2);   Serial.print("\t");
-        Serial.print("Humidity: "); Serial.println(rh);
+        Serial.print("HUMIDITY: ");
+        Serial.print("tempc="); Serial.print(celcius2);   Serial.print(" ");
+        Serial.print("rh="); Serial.println(rh);
     }
 
     digitalWrite(PIN_LED, 0x01 ^ digitalRead(PIN_LED));
