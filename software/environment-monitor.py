@@ -60,7 +60,7 @@ class EnvironmentMonitor(object):
             m = re.search("%s=([0-9.]+)" % tn, string)
             if m is not None:
                 pub.publish(float(m.group(1)))
-                if self.stdout:
+                if self._stdout:
                     print tn, float(m.group(1))
 
 if __name__ == '__main__':
