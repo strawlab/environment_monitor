@@ -171,19 +171,19 @@ void loop(void) {
 
     if (tsl2561_sample_ok) {
         Serial.print("LIGHT: ");
-        Serial.print("ir="); Serial.print(ir);   Serial.print(" ");
-        Serial.print("full="); Serial.print(full);   Serial.print(" ");
-        Serial.print("visible="); Serial.print(full - ir);   Serial.print(" ");
-        Serial.print("lux="); Serial.println(lux);
+        Serial.print("ls_infrared="); Serial.print(ir);   Serial.print(" ");
+        Serial.print("ls_full="); Serial.print(full);   Serial.print(" ");
+        Serial.print("ls_visible="); Serial.print(full - ir);   Serial.print(" ");
+        Serial.print("ls_intensity_lux="); Serial.println(lux);
     }
     if (max31850_sample_ok) {
         Serial.print("TEMPERATURE: ");
-        Serial.print("tempc="); Serial.println(celcius);
+        Serial.print("tc_temperature_C="); Serial.println(celcius);
     }
     if (dht22_sample_ok) {
         Serial.print("HUMIDITY: ");
-        Serial.print("tempc="); Serial.print(celcius2);   Serial.print(" ");
-        Serial.print("rh="); Serial.println(rh);
+        Serial.print("hs_temperature_C="); Serial.print(celcius2);   Serial.print(" ");
+        Serial.print("hs_humidity="); Serial.println(rh);
     }
 
     digitalWrite(PIN_LED, 0x01 ^ digitalRead(PIN_LED));
