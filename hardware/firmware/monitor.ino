@@ -1,8 +1,10 @@
 #include <Wire.h>
+#include <UDEV.h>
 
 #include "TSL2561.h"
 #include "OneWire.h"
 #include "DHT22.h"
+
 
 #define PIN_ONEWIRE 9
 #define PIN_DHT22   6
@@ -21,6 +23,8 @@ bool    tsl2561_ok;
 OneWire ds(PIN_ONEWIRE);
 byte    max31850_addr[8];
 bool    max31850_ok;
+
+UDEV    udev(Serial);
 
 bool tsl2561_setup(void) {
     if (!tsl.begin())
@@ -138,9 +142,13 @@ bool dht22_sample(float &celcius, float &relativehumidity) {
 
 void setup(void) {
     pinMode(PIN_LED, OUTPUT);
-    Serial.begin(115200);
-
     digitalWrite(PIN_LED, HIGH);
+
+    Serial.begin(57600);
+
+    //wait for 5 seconds for an id
+    udev.begin();
+    udev.read_and_process(5.0, PIN_LED);
 
     tsl2561_ok = tsl2561_setup();
     max31850_ok = max31850_setup();
@@ -168,6 +176,8 @@ void loop(void) {
     bool tsl2561_sample_ok = tsl2561_sample(ir, full, visible, lux);
     bool max31850_sample_ok = max31850_sample(celcius);
     bool dht22_sample_ok = dht22_sample(celcius2, rh);
+
+    udev.read_and_process();
 
     if (tsl2561_sample_ok) {
         Serial.print("LIGHT: ");
