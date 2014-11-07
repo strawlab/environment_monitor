@@ -4,13 +4,13 @@
 https://github.com/strawlab/environment-monitor
 
 This will publish to:
-/environment-monitor/tc_temperature_C
-/environment-monitor/hs_temperature_C
-/environment-monitor/hs_humidity
-/environment-monitor/ls_infrared
-/environment-monitor/ls_visible
-/environment-monitor/ls_full
-/environment-monitor/ls_intensity_lux
+/environmentmonitor/tc_temperature_C
+/environmentmonitor/hs_temperature_C
+/environmentmonitor/hs_humidity
+/environmentmonitor/ls_infrared
+/environmentmonitor/ls_visible
+/environmentmonitor/ls_full
+/environmentmonitor/ls_intensity_lux
 
 The subtopicnames are also defined in the firmware
 """
@@ -27,7 +27,7 @@ class EnvironmentMonitor(object):
 
     def __init__(self, dev, stdout=False):
         self._stdout = stdout
-        self._dev = serial.Serial(dev, baudrate=115200)
+        self._dev = serial.Serial(dev, baudrate=57600)
         self._buffer = ""
 
         self.topicnames = ["tc_temperature_C",
@@ -38,7 +38,7 @@ class EnvironmentMonitor(object):
                            "ls_full",
                            "ls_intensity_lux"]
         self.pubs = map(
-            lambda x: rospy.Publisher("/environmentmonitor/%s" % x, std_msgs.msg.Float64),
+            lambda x: rospy.Publisher("~%s" % x, std_msgs.msg.Float64),
             self.topicnames)
 
     def run(self, *rostimer_args):
@@ -66,10 +66,18 @@ class EnvironmentMonitor(object):
 if __name__ == '__main__':
     import argparse
 
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--device', type=str, default=None,
+                        required=True,
+                        help='specify the USB device (e.g. "/dev/ttyACM0")')
+    parser.add_argument('--verbose', action='store_true')
+
+    argv = rospy.myargv()
+    args = parser.parse_args(argv[1:])
 
     rospy.init_node('environmentmonitor')
 
-    em = EnvironmentMonitor('/dev/ttyUSB0', stdout=True)
+    em = EnvironmentMonitor(dev=args.device, stdout=args.verbose)
     rospy.Timer(rospy.rostime.Duration.from_sec(0.5), em.run)
 
     rospy.spin()
