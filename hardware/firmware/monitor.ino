@@ -173,11 +173,11 @@ void loop(void) {
     uint32_t lux;
     float celcius, celcius2, rh;
 
+    udev.read_and_process();
+
     bool tsl2561_sample_ok = tsl2561_sample(ir, full, visible, lux);
     bool max31850_sample_ok = max31850_sample(celcius);
     bool dht22_sample_ok = dht22_sample(celcius2, rh);
-
-    udev.read_and_process();
 
     if (tsl2561_sample_ok) {
         Serial.print("LIGHT: ");
