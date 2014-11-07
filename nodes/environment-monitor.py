@@ -75,7 +75,7 @@ if __name__ == '__main__':
     argv = rospy.myargv()
     args = parser.parse_args(argv[1:])
 
-    rospy.init_node('environmentmonitor')
+    rospy.init_node('environment')
 
     em = EnvironmentMonitor(dev=args.device, stdout=args.verbose)
     rospy.Timer(rospy.rostime.Duration.from_sec(0.5), em.run)
