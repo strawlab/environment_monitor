@@ -148,7 +148,7 @@ void setup(void) {
 
     //wait for 5 seconds for an id
     udev.begin();
-    udev.read_and_process(5.0, PIN_LED);
+    udev.setup(PIN_LED);
 
     tsl2561_ok = tsl2561_setup();
     max31850_ok = max31850_setup();
