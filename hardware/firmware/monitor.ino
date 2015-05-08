@@ -141,14 +141,13 @@ bool dht22_sample(float &celcius, float &relativehumidity) {
 
 
 void setup(void) {
+    udev.begin();
+    udev.serial_handshake();   //blocks for 5 seconds by default
+
     pinMode(PIN_LED, OUTPUT);
     digitalWrite(PIN_LED, HIGH);
 
     Serial.begin(57600);
-
-    //wait for 5 seconds for an id
-    udev.begin();
-    udev.setup(PIN_LED);
 
     tsl2561_ok = tsl2561_setup();
     max31850_ok = max31850_setup();

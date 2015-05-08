@@ -3,6 +3,6 @@
 
 ARDUINO_DIR = /usr/share/arduino
 BOARD_TAG    = pro328
-ARDUINO_PORT = /dev/ttyUSB*
+ARDUINO_PORT = /dev/envmon /dev/ttyUSB*
 ARDUINO_LIBS = EEPROM Wire UDEV
 include /usr/share/arduino/Arduino.mk
