@@ -5,6 +5,7 @@
   <maintainer email="strawman@astraw.com">Andrew Straw</maintainer>
   <license>GPL</license>
   <author>John Stowers</author>
+  <buildtool_depend>catkin</buildtool_depend>
   <depend>rospy</depend>
   <depend>std_msgs</depend>
   <depend>arduino-udev</depend>
